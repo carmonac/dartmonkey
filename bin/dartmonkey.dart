@@ -1,5 +1,5 @@
-import 'repl.dart';
-import 'utils.dart';
+import 'package:dartmonkey/repl.dart';
+import 'package:dartmonkey/utils.dart';
 
 Future<void> main() async {
   var username = await getSystemUsername();
