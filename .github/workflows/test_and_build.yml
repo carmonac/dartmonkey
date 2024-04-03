@@ -1,54 +1,53 @@
-name: Test and Build
+name: Dart CI
 
 on:
+  # Run on PRs and pushes to the default branch.
   push:
     branches: [ main ]
-    tags:
-        - 'v*'
   pull_request:
     branches: [ main ]
+    
+env:
+  PUB_ENVIRONMENT: bot.github
 
 jobs:
-  test:
+  analyze:
     runs-on: ubuntu-latest
-
-    container:
-      image: google/dart:latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [dev, stable, 3.3.3]
     steps:
-    - uses: actions/checkout@v4
-    - name: Install system dependencies
-      run: |
-        apt-get update
-        apt-get install -y --no-install-recommends gnupg
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
-        apt-get update
-        apt-get install -y unzip
-    - name: Setup Dart
-      uses: dart-lang/setup-dart@v1
-      with:
-        sdk: '3.3.3'
-    - name: Install dependencies
-      run: dart pub get
-    - name: Run tests
-      run: dart test
+      - uses: actions/checkout@v4.1.2
+      - uses: dart-lang/setup-dart@v1.6.2
+        with:
+          sdk: ${{ matrix.sdk }}
+      - id: install
+        name: Install dependencies
+        run: dart pub get
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+        if: matrix.sdk == 'dev' && steps.install.outcome == 'success'
+      - name: Analyze code
+        run: dart analyze --fatal-infos
+        if: always() && steps.install.outcome == 'success'
 
-  build:
-    needs: test
+  test:
+    needs: analyze
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
+        sdk: [dev, stable, 3.3.3]
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - uses: actions/checkout@v4.1.2
+      - uses: dart-lang/setup-dart@v1.6.2
         with:
-          sdk: stable
-      - name: Compile to executable
-        run: dart compile exe bin/main.dart -o binaries/${{ runner.os }}-dartmonkey
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-dartmonkey
-          path: binaries/
+          sdk: ${{ matrix.sdk }}
+      - id: install
+        name: Install dependencies
+        run: dart pub get
+      - name: Run VM tests
+        run: dart test
+        if: always() && steps.install.outcome == 'success'
