@@ -16,6 +16,11 @@ class Identifier extends Expression {
 
   @override
   String get tokenLiteral => token.literal;
+
+  @override
+  String toString() {
+    return value;
+  }
 }
 
 class Program {
@@ -23,6 +28,11 @@ class Program {
 
   String get tokenLiteral =>
       statements.isNotEmpty ? statements.first.tokenLiteral : '';
+
+  @override
+  String toString() {
+    return statements.join('');
+  }
 }
 
 class LetStatement extends Statement {
@@ -34,6 +44,11 @@ class LetStatement extends Statement {
 
   @override
   String get tokenLiteral => token.literal;
+
+  @override
+  String toString() {
+    return '${tokenLiteral} ${name} = ${value};';
+  }
 }
 
 class ReturnStatement extends Statement {
@@ -44,4 +59,24 @@ class ReturnStatement extends Statement {
 
   @override
   String get tokenLiteral => token.literal;
+
+  @override
+  String toString() {
+    return '${tokenLiteral} ${returnValue};';
+  }
+}
+
+class ExpressionStatement extends Statement {
+  final Expression expression;
+  final Token token;
+
+  ExpressionStatement(this.expression, this.token);
+
+  @override
+  String get tokenLiteral => token.literal;
+
+  @override
+  String toString() {
+    return expression.toString();
+  }
 }
