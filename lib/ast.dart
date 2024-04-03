@@ -47,7 +47,7 @@ class LetStatement extends Statement {
 
   @override
   String toString() {
-    return '${tokenLiteral} ${name} = ${value};';
+    return '$tokenLiteral $name = $value;';
   }
 }
 
@@ -62,7 +62,7 @@ class ReturnStatement extends Statement {
 
   @override
   String toString() {
-    return '${tokenLiteral} ${returnValue};';
+    return '$tokenLiteral $returnValue;';
   }
 }
 
