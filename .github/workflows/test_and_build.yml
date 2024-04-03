@@ -18,7 +18,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install system dependencies
-      run: apt-get update && apt-get install -y unzip
+      run: |
+        apt-get update
+        apt-get install -y --no-install-recommends gnupg
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
+        apt-get update
+        apt-get install -y unzip
     - name: Setup Dart
       uses: dart-lang/setup-dart@v1
       with:
